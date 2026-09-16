@@ -1,8 +1,8 @@
 package io.wispforest.owo.ui.renderstate;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
+import io.wispforest.owo.mixin.ui.access.PictureInPictureRendererAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
@@ -13,6 +13,8 @@ import net.minecraft.client.renderer.state.gui.GuiRenderState;
 import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector4f;
+import org.joml.Vector4fc;
 
 public record CubeMapElementRenderState(
     CubeMap cubeMap,
@@ -78,9 +80,9 @@ public record CubeMapElementRenderState(
 
             try {
                 CubeMapElementRenderState.outputOverride = new OutputOverride(
-                    RenderSystem.outputColorTextureOverride,
-                    RenderSystem.outputDepthTextureOverride,
-                    0xFF000000
+                    ((PictureInPictureRendererAccessor) this).owo$getTextureView(),
+                    ((PictureInPictureRendererAccessor) this).owo$getDepthTextureView(),
+                    new Vector4f(0, 0, 0, 1)
                 );
 
                 // TODO: we should probably investigate syncing this to the actual panorama
@@ -105,5 +107,5 @@ public record CubeMapElementRenderState(
         }
     }
 
-    public record OutputOverride(GpuTextureView color, GpuTextureView depth, int resetColor) {}
+    public record OutputOverride(GpuTextureView color, GpuTextureView depth, Vector4fc resetColor) {}
 }

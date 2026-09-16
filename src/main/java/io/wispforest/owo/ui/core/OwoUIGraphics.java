@@ -1,7 +1,8 @@
 package io.wispforest.owo.ui.core;
 
 import com.google.common.base.Preconditions;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.platform.cursor.CursorType;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import io.wispforest.owo.mixin.ui.access.GuiGraphicsExtractorAccessor;
 import io.wispforest.owo.ui.event.WindowResizeCallback;
 import io.wispforest.owo.ui.renderstate.CircleElementRenderState;
@@ -37,6 +38,7 @@ public class OwoUIGraphics extends GuiGraphicsExtractor {
     public static final Identifier PANEL_INSET_NINE_PATCH_TEXTURE = Identifier.fromNamespaceAndPath("owo", "panel/inset");
 
     private final Consumer<Runnable> setTooltipDrawer;
+    private @Nullable GuiGraphicsExtractor cursorDelegate;
 
     protected OwoUIGraphics(Minecraft client, GuiRenderState renderState, int mouseX, int mouseY, Consumer<Runnable> setTooltipDrawer) {
         super(client, renderState, mouseX, mouseY);
@@ -54,8 +56,15 @@ public class OwoUIGraphics extends GuiGraphicsExtractor {
 
         ((GuiGraphicsExtractorAccessor) owoContext).owo$setScissorStack(((GuiGraphicsExtractorAccessor) graphics).owo$getScissorStack());
         ((GuiGraphicsExtractorAccessor) owoContext).owo$setPose(((GuiGraphicsExtractorAccessor) graphics).owo$getPose());
+        owoContext.cursorDelegate = graphics;
 
         return owoContext;
+    }
+
+    @Override
+    public void requestCursor(CursorType cursor) {
+        if (this.cursorDelegate != null) this.cursorDelegate.requestCursor(cursor);
+        else super.requestCursor(cursor);
     }
 
     public static UtilityScreen utilityScreen() {
@@ -249,7 +258,7 @@ public class OwoUIGraphics extends GuiGraphicsExtractor {
     }
 
     public void drawTooltip(Font textRenderer, int x, int y, List<ClientTooltipComponent> components, @Nullable Identifier texture) {
-        ((GuiGraphicsExtractorAccessor) this).owo$tooltip(textRenderer, components, x, y, DefaultTooltipPositioner.INSTANCE, texture);
+        ((GuiGraphicsExtractorAccessor) this).owo$tooltip(textRenderer, components, x, y, DefaultTooltipPositioner.INSTANCE, texture, true);
     }
 
     @Override

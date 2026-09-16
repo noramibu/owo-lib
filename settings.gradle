@@ -8,4 +8,6 @@ pluginManagement {
     }
 }
 
+rootProject.name = 'owo-lib'
+
 include 'owo-sentinel'

@@ -10,12 +10,12 @@ import io.wispforest.owo.ui.util.UISounds;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.util.tinyfd.TinyFileDialogs;
+import org.lwjgl.sdl.SDLDialog;
+import org.lwjgl.sdl.SDL_DialogFileCallback;
+import org.lwjgl.system.MemoryUtil;
 
 import java.nio.file.Path;
-import java.util.concurrent.CompletableFuture;
 
 public class ConfigureHotReloadScreen extends BaseUIModelScreen<FlowLayout> implements CommandOpenedScreen {
 
@@ -25,6 +25,7 @@ public class ConfigureHotReloadScreen extends BaseUIModelScreen<FlowLayout> impl
     private @Nullable Path reloadLocation;
 
     private LabelComponent fileNameLabel;
+    private @Nullable SDL_DialogFileCallback fileDialogCallback;
 
     public ConfigureHotReloadScreen(Identifier modelId, @Nullable Screen parent) {
         super(FlowLayout.class, DataSource.asset(Owo.id("configure_hot_reload")));
@@ -41,12 +42,26 @@ public class ConfigureHotReloadScreen extends BaseUIModelScreen<FlowLayout> impl
         this.updateFileNameLabel();
 
         rootComponent.childById(ButtonComponent.class, "choose-button").onPress(button -> {
-            CompletableFuture.runAsync(() -> {
-                var newPath = TinyFileDialogs.tinyfd_openFileDialog("Choose UI Model source", null, null, null, false);
-                if (newPath != null) this.reloadLocation = Path.of(newPath);
-            }, Util.backgroundExecutor()).whenComplete((unused, throwable) -> {
-                this.updateFileNameLabel();
+            this.fileDialogCallback = SDL_DialogFileCallback.create((_, fileList, _) -> {
+                if (fileList != MemoryUtil.NULL) {
+                    var pathPointer = MemoryUtil.memGetAddress(fileList);
+                    if (pathPointer != MemoryUtil.NULL) {
+                        this.reloadLocation = Path.of(MemoryUtil.memUTF8(pathPointer));
+                    }
+                }
+
+                this.minecraft.execute(this::updateFileNameLabel);
+                this.fileDialogCallback.free();
+                this.fileDialogCallback = null;
             });
+            SDLDialog.SDL_ShowOpenFileDialog(
+                this.fileDialogCallback,
+                MemoryUtil.NULL,
+                this.minecraft.getWindow().handle(),
+                null,
+                (String) null,
+                false
+            );
         });
 
         rootComponent.childById(ButtonComponent.class, "save-button").onPress(button -> {

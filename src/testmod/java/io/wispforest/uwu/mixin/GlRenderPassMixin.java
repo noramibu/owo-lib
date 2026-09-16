@@ -6,7 +6,7 @@ import io.wispforest.owo.Owo;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(targets = "com.mojang.blaze3d.opengl.GlRenderPass")
+@Mixin(targets = "com.mojang.renderpearl.frontend.FrontendGpuDevice")
 public class GlRenderPassMixin {
     @WrapOperation(method = "<clinit>", at = @At(value = "FIELD", target = "Lnet/minecraft/SharedConstants;IS_RUNNING_IN_IDE:Z"))
     private static boolean adjustDevCheck(Operation<Boolean> original) {

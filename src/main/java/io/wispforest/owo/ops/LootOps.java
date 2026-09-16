@@ -2,6 +2,7 @@ package io.wispforest.owo.ops;
 
 import io.wispforest.owo.mixin.SetComponentsFunctionAccessor;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -10,13 +11,13 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.ints.UniformGenerator;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -53,7 +54,10 @@ public final class LootOps {
     public static void injectItemWithCount(ItemLike item, float chance, int min, int max, Identifier... targetTables) {
         ADDITIONS.put(targetTables, () -> LootItem.lootTableItem(item)
                 .when(LootItemRandomChanceCondition.randomChance(chance))
-                .apply(SetItemCountFunction.setCount(UniformGenerator.between(min, max)))
+                .apply(SetItemCountFunction.setCount(Holder.direct(new UniformGenerator(
+                    Holder.direct(new ConstantValue(min)),
+                    Holder.direct(new ConstantValue(max))
+                ))))
                 .build());
     }
 
@@ -67,8 +71,8 @@ public final class LootOps {
     public static void injectItemStack(ItemStack stack, float chance, Identifier... targetTables) {
         ADDITIONS.put(targetTables, () -> LootItem.lootTableItem(stack.getItem())
                 .when(LootItemRandomChanceCondition.randomChance(chance))
-                .apply(() -> SetComponentsFunctionAccessor.createSetComponentsLootFunction(List.of(), stack.getComponentsPatch()))
-                .apply(SetItemCountFunction.setCount(ConstantValue.exactly(stack.getCount())))
+                .apply(() -> SetComponentsFunctionAccessor.createSetComponentsLootFunction(Optional.empty(), stack.getComponentsPatch()))
+                .apply(SetItemCountFunction.setCount(Holder.direct(new ConstantValue(stack.getCount()))))
                 .build());
     }
 

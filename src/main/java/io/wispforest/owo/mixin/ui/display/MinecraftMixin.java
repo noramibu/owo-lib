@@ -3,6 +3,7 @@ package io.wispforest.owo.mixin.ui.display;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import com.mojang.blaze3d.platform.InputConstants;
 import io.wispforest.owo.braid.core.KeyModifiers;
 import io.wispforest.owo.braid.core.events.MouseButtonPressEvent;
 import io.wispforest.owo.braid.core.events.MouseButtonReleaseEvent;
@@ -14,10 +15,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -44,10 +45,10 @@ public class MinecraftMixin {
         if (BraidDisplayBinding.targetDisplay == null || BraidDisplayBinding.targetDisplay.display().primaryPressed) return;
 
         var eventBinding = BraidDisplayBinding.targetDisplay.display().app.eventBinding;
-        eventBinding.add(new MouseButtonPressEvent(GLFW.GLFW_MOUSE_BUTTON_LEFT, KeyModifiers.NONE));
+        eventBinding.add(new MouseButtonPressEvent(InputConstants.MOUSE_BUTTON_LEFT, KeyModifiers.NONE));
 
         BraidDisplayBinding.targetDisplay.display().primaryPressed = true;
-        this.player.swing(InteractionHand.MAIN_HAND);
+        this.player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, false);
 
         ci.cancel();
     }
@@ -57,10 +58,10 @@ public class MinecraftMixin {
         if (BraidDisplayBinding.targetDisplay == null || BraidDisplayBinding.targetDisplay.display().secondaryPressed) return;
 
         var eventBinding = BraidDisplayBinding.targetDisplay.display().app.eventBinding;
-        eventBinding.add(new MouseButtonPressEvent(GLFW.GLFW_MOUSE_BUTTON_RIGHT, KeyModifiers.NONE));
+        eventBinding.add(new MouseButtonPressEvent(InputConstants.MOUSE_BUTTON_RIGHT, KeyModifiers.NONE));
 
         BraidDisplayBinding.targetDisplay.display().secondaryPressed = true;
-        this.player.swing(InteractionHand.MAIN_HAND);
+        this.player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, false);
 
         cir.setReturnValue(true);
     }
@@ -99,12 +100,12 @@ public class MinecraftMixin {
             var display = BraidDisplayBinding.targetDisplay.display();
 
             if (display.primaryPressed && !Minecraft.getInstance().options.keyUse.isDown()) {
-                display.app.eventBinding.add(new MouseButtonReleaseEvent(GLFW.GLFW_MOUSE_BUTTON_LEFT, KeyModifiers.NONE));
+                display.app.eventBinding.add(new MouseButtonReleaseEvent(InputConstants.MOUSE_BUTTON_LEFT, KeyModifiers.NONE));
                 display.primaryPressed = false;
             }
 
             if (display.secondaryPressed && !Minecraft.getInstance().options.keyAttack.isDown()) {
-                display.app.eventBinding.add(new MouseButtonReleaseEvent(GLFW.GLFW_MOUSE_BUTTON_RIGHT, KeyModifiers.NONE));
+                display.app.eventBinding.add(new MouseButtonReleaseEvent(InputConstants.MOUSE_BUTTON_RIGHT, KeyModifiers.NONE));
                 display.secondaryPressed = false;
             }
 

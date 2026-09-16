@@ -11,7 +11,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
+import org.lwjgl.sdl.SDLScancode;
 import org.lwjgl.system.linux.DynamicLinkLoader;
 
 import java.time.Instant;
@@ -24,6 +24,70 @@ import java.util.Map;
 public final class RenderDoc {
 
     private RenderDoc() {}
+
+    private static final class GLFW {
+        private static final int GLFW_KEY_0 = 48;
+        private static final int GLFW_KEY_1 = 49;
+        private static final int GLFW_KEY_2 = 50;
+        private static final int GLFW_KEY_4 = 52;
+        private static final int GLFW_KEY_5 = 53;
+        private static final int GLFW_KEY_6 = 54;
+        private static final int GLFW_KEY_7 = 55;
+        private static final int GLFW_KEY_8 = 56;
+        private static final int GLFW_KEY_9 = 57;
+        private static final int GLFW_KEY_A = 65;
+        private static final int GLFW_KEY_B = 66;
+        private static final int GLFW_KEY_C = 67;
+        private static final int GLFW_KEY_D = 68;
+        private static final int GLFW_KEY_E = 69;
+        private static final int GLFW_KEY_F = 70;
+        private static final int GLFW_KEY_G = 71;
+        private static final int GLFW_KEY_H = 72;
+        private static final int GLFW_KEY_I = 73;
+        private static final int GLFW_KEY_J = 74;
+        private static final int GLFW_KEY_K = 75;
+        private static final int GLFW_KEY_L = 76;
+        private static final int GLFW_KEY_M = 77;
+        private static final int GLFW_KEY_N = 78;
+        private static final int GLFW_KEY_O = 79;
+        private static final int GLFW_KEY_P = 80;
+        private static final int GLFW_KEY_Q = 81;
+        private static final int GLFW_KEY_R = 82;
+        private static final int GLFW_KEY_S = 83;
+        private static final int GLFW_KEY_T = 84;
+        private static final int GLFW_KEY_U = 85;
+        private static final int GLFW_KEY_V = 86;
+        private static final int GLFW_KEY_W = 87;
+        private static final int GLFW_KEY_X = 88;
+        private static final int GLFW_KEY_Y = 89;
+        private static final int GLFW_KEY_Z = 90;
+        private static final int GLFW_KEY_KP_DIVIDE = 331;
+        private static final int GLFW_KEY_KP_MULTIPLY = 332;
+        private static final int GLFW_KEY_KP_SUBTRACT = 333;
+        private static final int GLFW_KEY_KP_ADD = 334;
+        private static final int GLFW_KEY_F1 = 290;
+        private static final int GLFW_KEY_F2 = 291;
+        private static final int GLFW_KEY_F3 = 292;
+        private static final int GLFW_KEY_F4 = 293;
+        private static final int GLFW_KEY_F5 = 294;
+        private static final int GLFW_KEY_F6 = 295;
+        private static final int GLFW_KEY_F7 = 296;
+        private static final int GLFW_KEY_F8 = 297;
+        private static final int GLFW_KEY_F9 = 298;
+        private static final int GLFW_KEY_F10 = 299;
+        private static final int GLFW_KEY_F11 = 300;
+        private static final int GLFW_KEY_F12 = 301;
+        private static final int GLFW_KEY_HOME = 268;
+        private static final int GLFW_KEY_END = 269;
+        private static final int GLFW_KEY_INSERT = 260;
+        private static final int GLFW_KEY_DELETE = 261;
+        private static final int GLFW_KEY_PAGE_UP = 266;
+        private static final int GLFW_KEY_PAGE_DOWN = 267;
+        private static final int GLFW_KEY_BACKSPACE = 259;
+        private static final int GLFW_KEY_TAB = 258;
+        private static final int GLFW_KEY_PRINT_SCREEN = 283;
+        private static final int GLFW_KEY_PAUSE = 284;
+    }
 
     private static final RenderdocLibrary.RenderdocApi renderdoc;
 
@@ -432,16 +496,54 @@ public final class RenderDoc {
         }
 
         private static final Int2ObjectMap<Key> GLFW_MAPPINGS = new Int2ObjectOpenHashMap<>();
+        private static final Int2ObjectMap<Key> INPUT_MAPPINGS = new Int2ObjectOpenHashMap<>();
 
         public static @Nullable Key fromGLFW(int glfw) {
             return GLFW_MAPPINGS.getOrDefault(glfw, null);
         }
 
+        public static @Nullable Key fromInput(int input) {
+            return INPUT_MAPPINGS.getOrDefault(input, null);
+        }
+
         static {
             for (var key : values()) {
-                if (key.glfw < 0) continue;
-                GLFW_MAPPINGS.put(key.glfw, key);
+                if (key.glfw >= 0) GLFW_MAPPINGS.put(key.glfw, key);
+
+                var input = inputKey(key);
+                if (input >= 0) INPUT_MAPPINGS.put(input, key);
             }
+        }
+
+        private static int inputKey(Key key) {
+            if (key.keycode == 0x30) return SDLScancode.SDL_SCANCODE_0;
+            if (key.keycode >= 0x31 && key.keycode <= 0x39) {
+                return SDLScancode.SDL_SCANCODE_1 + key.keycode - 0x31;
+            }
+            if (key.keycode >= 0x41 && key.keycode <= 0x5A) {
+                return SDLScancode.SDL_SCANCODE_A + key.keycode - 0x41;
+            }
+            if (key.keycode >= 0x105 && key.keycode <= 0x110) {
+                return SDLScancode.SDL_SCANCODE_F1 + key.keycode - 0x105;
+            }
+
+            return switch (key) {
+                case DIVIDE -> SDLScancode.SDL_SCANCODE_KP_DIVIDE;
+                case MULTIPLY -> SDLScancode.SDL_SCANCODE_KP_MULTIPLY;
+                case SUBTRACT -> SDLScancode.SDL_SCANCODE_KP_MINUS;
+                case PLUS -> SDLScancode.SDL_SCANCODE_KP_PLUS;
+                case HOME -> SDLScancode.SDL_SCANCODE_HOME;
+                case END -> SDLScancode.SDL_SCANCODE_END;
+                case INSERT -> SDLScancode.SDL_SCANCODE_INSERT;
+                case DELETE -> SDLScancode.SDL_SCANCODE_DELETE;
+                case PAGE_UP -> SDLScancode.SDL_SCANCODE_PAGEUP;
+                case PAGE_DOWN -> SDLScancode.SDL_SCANCODE_PAGEDOWN;
+                case BACKSPACE -> SDLScancode.SDL_SCANCODE_BACKSPACE;
+                case TAB -> SDLScancode.SDL_SCANCODE_TAB;
+                case PRINT_SCREEN -> SDLScancode.SDL_SCANCODE_PRINTSCREEN;
+                case PAUSE -> SDLScancode.SDL_SCANCODE_PAUSE;
+                default -> -1;
+            };
         }
     }
 

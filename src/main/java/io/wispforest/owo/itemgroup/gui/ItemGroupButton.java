@@ -7,8 +7,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Util;
 import net.minecraft.world.item.CreativeModeTab;
+
+import java.net.URI;
 
 /**
  * A button placed to the right side of the creative inventory. Provides defaults
@@ -59,14 +60,10 @@ public final class ItemGroupButton implements OwoItemGroup.ButtonDefinition {
      * @return The created button
      */
     public static ItemGroupButton link(CreativeModeTab group, Icon icon, String name, String url) {
-        return new ItemGroupButton(group, icon, name, () -> {
-            final var client = Minecraft.getInstance();
-            var screen = client.gui.screen();
-            client.setScreenAndShow(new ConfirmLinkScreen(confirmed -> {
-                if (confirmed) Util.getPlatform().openUri(url);
-                client.setScreenAndShow(screen);
-            }, url, true));
-        });
+        var uri = URI.create(url);
+        return new ItemGroupButton(group, icon, name, () ->
+            ConfirmLinkScreen.confirmLinkNow(Minecraft.getInstance().gui.screen(), uri, true)
+        );
     }
 
     @Override

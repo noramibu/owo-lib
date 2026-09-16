@@ -102,6 +102,7 @@ sourceSets {
     testmod {
         runtimeClasspath += main.runtimeClasspath
         compileClasspath += main.compileClasspath
+        resources.exclude 'data/uwu/recipe/uwu_shaped_recipe.json5'
     }
 }
 
@@ -109,6 +110,7 @@ loom {
     runs {
         testmodClient {
             client()
+            vmArg "-XX:StackShadowPages=32"
             ideConfigGenerated project.rootProject == project
             name = "Testmod Client"
             source sourceSets.testmod
@@ -125,7 +127,7 @@ loom {
 }
 
 dependencies {
-    localRuntime("me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}")
+//    localRuntime("me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}")
     compileOnly("me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:${project.rei_version}") {
         exclude "group": "net.fabricmc.fabric-api"
     }

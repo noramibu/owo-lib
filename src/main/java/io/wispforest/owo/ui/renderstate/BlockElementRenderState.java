@@ -17,6 +17,7 @@ import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 
 public record BlockElementRenderState(
     BlockState state,
@@ -78,8 +79,8 @@ public record BlockElementRenderState(
             matrices.translate(0, -height / 2f, 100);
             matrices.scale(40 * width / 64f, -40 * height / 64f, -40);
 
-            matrices.mulPose(Axis.XP.rotationDegrees(30));
-            matrices.mulPose(Axis.YP.rotationDegrees(45 + 180));
+            matrices.mulPose(new Matrix4f().rotate(Axis.XP.rotationDegrees(30)));
+            matrices.mulPose(new Matrix4f().rotate(Axis.YP.rotationDegrees(45 + 180)));
 
             matrices.translate(-.5, -.5, -.5);
 

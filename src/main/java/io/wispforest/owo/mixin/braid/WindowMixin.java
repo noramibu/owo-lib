@@ -2,22 +2,26 @@ package io.wispforest.owo.mixin.braid;
 
 import com.mojang.blaze3d.platform.Window;
 import io.wispforest.owo.braid.core.BraidWindow;
-import net.minecraft.client.Minecraft;
+import org.lwjgl.sdl.SDLEvents;
+import org.lwjgl.sdl.SDL_Event;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Window.class)
 public class WindowMixin {
 
-    @ModifyArg(method = "createGlfwWindow", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/GLFW;glfwCreateWindow(IILjava/lang/CharSequence;JJ)J"), index = 4)
-    private static long injectContextShare(long original) {
-        if (!BraidWindow.SHARE_NEXT_WINDOW_INSTANCE.get()) {
-            return original;
-        }
-
-        BraidWindow.SHARE_NEXT_WINDOW_INSTANCE.set(false);
-        return Minecraft.getInstance().getWindow().handle();
+    @Shadow
+    public long handle() {
+        throw new AssertionError();
     }
 
+    @Inject(method = "handleEvent", at = @At("HEAD"), cancellable = true)
+    private void routeBraidWindowEvent(SDL_Event event, CallbackInfo ci) {
+        if (SDLEvents.SDL_GetWindowFromEvent(event) != this.handle() && BraidWindow.dispatchEvent(event)) {
+            ci.cancel();
+        }
+    }
 }

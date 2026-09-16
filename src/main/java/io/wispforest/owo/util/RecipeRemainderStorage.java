@@ -7,15 +7,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @ApiStatus.Internal
 public final class RecipeRemainderStorage {
 
     private RecipeRemainderStorage() {}
 
-    private static final Map<Identifier, Map<Item, ItemStackTemplate>> REMAINDERS = new HashMap<>();
+    private static final Map<Identifier, Map<Item, ItemStackTemplate>> REMAINDERS = new ConcurrentHashMap<>();
 
     public static void store(Identifier recipe, Map<Item, ItemStackTemplate> remainders) {
         REMAINDERS.put(recipe, remainders);

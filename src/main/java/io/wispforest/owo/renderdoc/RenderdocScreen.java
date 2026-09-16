@@ -4,10 +4,10 @@ import io.wispforest.owo.ops.TextOps;
 import io.wispforest.owo.ui.base.BaseOwoScreen;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.CheckboxComponent;
-import io.wispforest.owo.ui.component.UIComponents;
 import io.wispforest.owo.ui.component.LabelComponent;
-import io.wispforest.owo.ui.container.UIContainers;
+import io.wispforest.owo.ui.component.UIComponents;
 import io.wispforest.owo.ui.container.FlowLayout;
+import io.wispforest.owo.ui.container.UIContainers;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.util.CommandOpenedScreen;
 import net.minecraft.ChatFormatting;
@@ -106,7 +106,7 @@ public class RenderdocScreen extends BaseOwoScreen<FlowLayout> implements Comman
 
             this.setCaptureKey = false;
 
-            var key = RenderDoc.Key.fromGLFW(input.key());
+            var key = RenderDoc.Key.fromInput(input.key());
             if (key != null) {
                 this.ticks = 0;
                 this.scheduledKey = key;
